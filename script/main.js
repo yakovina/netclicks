@@ -32,7 +32,7 @@ const DBService = class {
   }
 
 
-  getData = async (url) => {
+  getData = async function(url)  {
     const res = await fetch(url);
     if (res.ok) {
       return res.json()
@@ -95,6 +95,7 @@ document.addEventListener('click', (event) => {
   }
 })
 menu.addEventListener('click', event => {
+  event.preventDefault()
   const target = event.target;
   const dropDown = target.closest('.dropdown')
   if (dropDown) {
@@ -136,7 +137,6 @@ menu.addEventListener('click', event => {
     })
   }
   if (target.closest('#search')) {
-    tvShows.append(loading);
     hamburger.classList.remove('open');
     menu.classList.remove('openMenu')
     tvShowList.textContent = '';
