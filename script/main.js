@@ -2,7 +2,14 @@
 
 var _temp;
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {value: value, enumerable: true, configurable: true, writable: true});
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
 
 const menu = document.querySelector('.left-menu'),
   hamburger = menu.querySelector('.hamburger'),
@@ -21,10 +28,10 @@ const menu = document.querySelector('.left-menu'),
   dropdown = document.querySelectorAll('.dropdown'),
   tvShowsHead = document.querySelector('.tv-shows__head'),
   posterWrapper = document.querySelector('.poster__wrapper'),
-  modalContent = document.querySelector('.modal__content');
+  modalContent = document.querySelector('.modal__content'),
+  pagination = document.querySelector('.pagination');
 const loading = document.createElement('div');
 loading.className = 'loading';
-console.log(loading);
 const IMAGE_URL = 'https://image.tmdb.org/t/p/w185_and_h278_bestv2/';
 const DBService = (_temp = class DBService {
   constructor() {
@@ -47,7 +54,11 @@ const DBService = (_temp = class DBService {
     });
 
     _defineProperty(this, "getSearchResult", query => {
-      return this.getData(`${this.SERVER}search/tv?api_key=${this.API_KEY}&query=${query}&language=ru-RU`);
+      this.temp = `${this.SERVER}search/tv?api_key=${this.API_KEY}&query=${query}&language=ru-RU`
+      return this.getData(this.temp);
+    });
+    _defineProperty(this, "getNextPage", page => {
+      return this.getData(this.temp + '&page=' + page);
     });
 
     _defineProperty(this, "getTvShow", id => {
@@ -155,7 +166,7 @@ menu.addEventListener('click', event => {
 });
 
 const changePhoto = event => {
-  card = event.target.closest('.tv-shows__item');
+  let card = event.target.closest('.tv-shows__item');
 
   if (card) {
     const img = card.querySelector('.tv-card__img');
@@ -174,7 +185,6 @@ tvShowList.addEventListener('click', event => {
 
   if (card) {
     preloader.style.display = 'block';
-    console.log(card.id);
     dbService.getTvShow(card.id).then(data => {
       const {
         poster_path: posterPath,
@@ -245,7 +255,6 @@ const renderCard = (data, target) => {
     } = item;
     const posterImg = poster ? IMAGE_URL + poster : 'img/no-poster.jpg';
     const backdropIMG = backdrop ? IMAGE_URL + backdrop : 'img/no-poster.jpg';
-    console.log();
     const voteElem = vote ? `<span class="tv-card__vote">${vote}</span>` : '';
     card.innerHTML = `
                     <a href="#"  class="tv-card">
@@ -260,6 +269,12 @@ const renderCard = (data, target) => {
     loading.remove();
     tvShowList.append(card);
   });
+  pagination.innerHTML = '';
+  if (data.total_pages > 1) {
+    for (let i = 1; i <= data.total_pages; i++) {
+      pagination.innerHTML += `<li><a href="" class = "pages">${i}</a></li>`
+    }
+  }
 };
 
 {
@@ -275,3 +290,12 @@ searchForm.addEventListener('submit', event => {
     searchFormInput.value = '';
   }
 });
+
+
+pagination.addEventListener('click', (event) => {
+  event.preventDefault();
+  const target = event.target;
+  if (target.classList.contains('pages')) {
+    dbService.getNextPage(target.textContent).then(renderCard)
+  }
+})
