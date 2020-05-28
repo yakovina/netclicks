@@ -1199,3 +1199,13 @@ div:after {
 .pagination{
     display: flex;
 }
+.pagination .pages{
+    height: 20px;
+    width: 20px;
+    background-color: forestgreen;
+    color: #ffffff;
+    display: flex;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+}
